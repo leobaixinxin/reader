@@ -4,9 +4,239 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <meta name="format-detection" content="telephone=no">
+    <title>reader</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_978995_lh8susoq8g.css">
+    <style>
+        html{
+            width:100%;
+            height:100%;
+            overflow-x: hidden;
+        }
+        body{
+            text-align: left;
+            width:100%;
+            overflow: hidden;
+            background: #e9dfc7;
+        }
+        .m_read_content{
+            padding: 15px;
+            font-size: 14px;
+            line-height: 31px;
+            color: #555;
+        }
+        .m_read_content h4{
+            font-size: 20px;
+            color: #736357;
+            border-bottom: 1px solid #736357;
+            letter-spacing: 2px;
+            margin:0 0 1em 0;
+        }
+        .m_read_content p{
+            text-indent: 2em;
+            margin:0.5em 0;
+            letter-spacing: 0;
+            line-height: 24px;
+        }
+        .u_tab{
+            height:34px;
+            margin:10px auto;
+            line-height: 34px;
+            border-radius:8px;
+            border:1px solid #858382;
+            font-size: 12px;
+            background: #000;
+            opacity: 0.9;
+        }
+        .u_tab li{
+            display:inline-block;
+            color: #fff;
+            text-align: center;
+            width:49%;
+            border-right:1px solid #fff;
+        }
+        .u_tab li:nth-child(2){
+            border-right: none;
+        }
+        .m_button_bar{
+            width:70%;
+            max-width: 800px;
+            margin:0 auto;
+            padding:15px;
+        }
+        .top_nav{
+            position:fixed;
+            z-index:9999;
+            top:0;
+            width:100%;
+            height:50px;
+            background: #000;
+
+        }
+        .icon_back{
+            position: absolute;
+            top:14px;
+            left:10px;
+        }
+        .icon-left:before{
+            color:#fff;
+            font-size: 23px;
+        }
+        .nav_title{
+            position: absolute;
+            top:16px;
+            left:42px;
+            color:#fff;
+        }
+
+        .bottom_nav{
+            position: fixed;
+            bottom: 0;
+            width:100%;
+            background:#000;
+            z-index: 9999;
+            height:70px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            color:#fff;
+            /* font-size:13px; */
+        }
+        .nav_item{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav_item .iconfont{
+            margin-bottom:2px;
+        }
+
+        .nav_panel_bk{
+            position: fixed;
+            bottom:70px;
+            width:100%;
+            height:135px;
+            z-index:10000;
+            background: #000;
+            opacity:0.9;
+        }
+        .nav_panel{
+            position: fixed;
+            bottom:70px;
+            width:100%;
+            height:135px;
+            z-index:10001;
+            background:none;
+            color:#fff;
+        }
+        .child_mod{
+            display: flex;
+            align-items: center;
+            margin:15px;
+            padding:5px 10px;
+        }
+        .child_mod span{
+            display: inline-block;
+            padding-right:20px;
+            padding-left:10px;
+        }
+        .font_size_button{
+            background: none;
+            color:#fff;
+            border:1px solid #fff;
+            border-radius:16px;
+            padding:5px 40px;
+        }
+        .child_mod button:nth-child(3){
+            margin-left:10px;
+        }
+        .bk_container{
+            position: relative;
+            width:30px;
+            height: 30px;
+            border-radius: 50%;
+            background:#fff;
+            display: inline-block;
+            margin-right:15px;
+        }
+        .bk_container:nth-last-child(1){
+            margin-right:0;
+        }
+        .bk_container_current{
+            position: absolute;
+            top:-2px;
+            left:-2px;
+            width:32px;
+            height:32px;
+            border-radius:50%;
+            border:1px solid #ff7800;
+        }
+    </style>
 </head>
 <body>
+
+    <div id="root" class="container">
+        <div id="top_nav" class="top_nav">
+            <div class="icon_back iconfont icon-left"></div>
+            <div class="nav_title">返回书架</div>
+        </div>
+        <div id="bottom_nav" class="bottom_nav">
+            <div class="nav_item">
+                <div class="icon_list iconfont icon-unorderedlist"></div>
+                <div class="item_name">目录</div>
+            </div>
+            <div class="nav_item">
+                    <div class="icon_font iconfont icon-font-size"></div>
+                    <div class="item_name">字体</div>
+            </div>
+            <div class="nav_item">
+                    <div class="icon_light iconfont icon-eye-fill"></div>
+                    <div class="item_name">夜间</div>
+            </div>
+        </div>
+        <div id="fiction_chapter_title"></div>
+        <div id="fiction_chapter_container" class="m_read_content">
+            <h4>史上最浅显易懂的Git教程！</h4>
+            <p>为什么要编写这个教程？因为我在学习Git的过程中，买过书，也在网上Google了一堆Git相关的文章和教程，但令人失望的是，这些教程不是难得令人发指，就是简单得一笔带过，或者，只支离破碎地介绍Git的某几个命令，还有直接从Git手册粘贴帮助文档的，总之，初学者很难找到一个由浅入深，学完后能立刻上手的Git教程。</p>
+            <p>为什么要编写这个教程？因为我在学习Git的过程中，买过书，也在网上Google了一堆Git相关的文章和教程，但令人失望的是，这些教程不是难得令人发指，就是简单得一笔带过，或者，只支离破碎地介绍Git的某几个命令，还有直接从Git手册粘贴帮助文档的，总之，初学者很难找到一个由浅入深，学完后能立刻上手的Git教程。</p>
+            <p>为什么要编写这个教程？因为我在学习Git的过程中，买过书，也在网上Google了一堆Git相关的文章和教程，但令人失望的是，这些教程不是难得令人发指，就是简单得一笔带过，或者，只支离破碎地介绍Git的某几个命令，还有直接从Git手册粘贴帮助文档的，总之，初学者很难找到一个由浅入深，学完后能立刻上手的Git教程。为什么要编写这个教程？因为我在学习Git的过程中，买过书，也在网上Google了一堆Git相关的文章和教程，但令人失望的是，这些教程不是难得令人发指，就是简单得一笔带过，或者，只支离破碎地介绍Git的某几个命令，还有直接从Git手册粘贴帮助文档的，总之，初学者很难找到一个由浅入深，学完后能立刻上手的Git教程</p>
+            <p>为什么要编写这个教程？因为我在学习Git的过程中，买过书，也在网上Google了一堆Git相关的文章和教程，但令人失望的是，这些教程不是难得令人发指，就是简单得一笔带过，或者，只支离破碎地介绍Git的某几个命令，还有直接从Git手册粘贴帮助文档的，总之，初学者很难找到一个由浅入深，学完后能立刻上手的Git教程。</p>
+        </div>
+        <div class="m_button_bar">
+            <ul class="u_tab">
+                <li id="prev_btn">上一篇</li>
+                <li id="next_btn">下一篇</li>
+            </ul>
+        </div>
+        <div class="nav_panel_bk"></div>
+        <div class="nav_panel" class="font_container">
+            <div class="child_mod">
+                <span>字号</span>
+                <button id="large_font" class="font_size_button">大</button>
+                <button id="small_font" class="font_size_button">小</button>
+            </div>
+            <div class="child_mod">
+                <span>背景</span>
+                <div class="bk_container green">
+                    <div class="bk_container_current"></div>
+                </div> 
+                <div class="bk_container gray">
+                        <div class="bk_container_current"></div>
+                </div> 
+                <div class="bk_container blue">
+                    <div class="bk_container_current"></div>
+                </div> 
+            </div>
+        </div>
+    </div>
     
+<script src="lib/zepto.js"></script>
+
+<script>
+   window.jQuery = $;
+</script>
+<script src="js/jquery.base64.js"></script>
+<script src="js/jquery.jsonp.js"></script>
 </body>
 </html>
