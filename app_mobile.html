@@ -221,13 +221,8 @@
             </div>
         </div>
         <div id="fiction_chapter_title"></div>
-        <div id="fiction_chapter_container" class="m_read_content">
-            <h4>史上最浅显易懂的Git教程！</h4>
-            <p>为什么要编写这个教程？因为我在学习Git的过程中，买过书，也在网上Google了一堆Git相关的文章和教程，但令人失望的是，这些教程不是难得令人发指，就是简单得一笔带过，或者，只支离破碎地介绍Git的某几个命令，还有直接从Git手册粘贴帮助文档的，总之，初学者很难找到一个由浅入深，学完后能立刻上手的Git教程。</p>
-            <p>为什么要编写这个教程？因为我在学习Git的过程中，买过书，也在网上Google了一堆Git相关的文章和教程，但令人失望的是，这些教程不是难得令人发指，就是简单得一笔带过，或者，只支离破碎地介绍Git的某几个命令，还有直接从Git手册粘贴帮助文档的，总之，初学者很难找到一个由浅入深，学完后能立刻上手的Git教程。</p>
-            <p>为什么要编写这个教程？因为我在学习Git的过程中，买过书，也在网上Google了一堆Git相关的文章和教程，但令人失望的是，这些教程不是难得令人发指，就是简单得一笔带过，或者，只支离破碎地介绍Git的某几个命令，还有直接从Git手册粘贴帮助文档的，总之，初学者很难找到一个由浅入深，学完后能立刻上手的Git教程。为什么要编写这个教程？因为我在学习Git的过程中，买过书，也在网上Google了一堆Git相关的文章和教程，但令人失望的是，这些教程不是难得令人发指，就是简单得一笔带过，或者，只支离破碎地介绍Git的某几个命令，还有直接从Git手册粘贴帮助文档的，总之，初学者很难找到一个由浅入深，学完后能立刻上手的Git教程</p>
-            <p>为什么要编写这个教程？因为我在学习Git的过程中，买过书，也在网上Google了一堆Git相关的文章和教程，但令人失望的是，这些教程不是难得令人发指，就是简单得一笔带过，或者，只支离破碎地介绍Git的某几个命令，还有直接从Git手册粘贴帮助文档的，总之，初学者很难找到一个由浅入深，学完后能立刻上手的Git教程。</p>
-        </div>
+        <div id="fiction_chapter_container" class="m_read_content"></div>
+           
         <div class="m_button_bar">
             <ul class="u_tab">
                 <li id="prev_btn">上一篇</li>
@@ -269,6 +264,7 @@
 <script src="js/jquery.jsonp.js"></script>
 <script>
     (function(){
+        'use strict';
         var Util = (function(){
             var prefix = "bxx_reader_";
             var storageGetter = function(key){
@@ -287,11 +283,23 @@
                 var hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
                 return hex;
             }
-
+            var getJSONP = function(url,callback){
+                return $.jsonp({
+                    url:url,
+                    cache:true,
+                    callback:"duokan_fiction_chapter",
+                    success:function(result){
+                        var data = $.base64.decode(result);
+                        var json = decodeURIComponent(escape(data));
+                        callback(json);
+                    }
+                })
+            }
             return {
                 storageGetter:storageGetter,
                 storageSetter:storageSetter,
-                rgb2hex:rgb2hex
+                rgb2hex:rgb2hex,
+                getJSONP:getJSONP
             }
         })();
 
@@ -306,6 +314,9 @@
 
         var Win = $(window),
             Doc = $(document);
+
+        var renderModelData;
+        var renderUI;
 
         // 字体大小初始化
         var initFontSize =parseInt(Util.storageGetter("font_size")) || 14;
@@ -338,20 +349,141 @@
         chooseBgColor(bgColor);
 
 
-        
-
-
         function main(){
             // 页面入口函数
+            renderModelData = renderModel();
+            renderUI = readerBaseFrame(DOM.contentContainer);
+            renderModelData.init(function(data){
+                renderUI(data);
+            });
             eventHandler();
         }
 
         function renderModel(){
             // 实现阅读器数据交互的方法
+            var chapter_id;
+            var chapter_num;
+            var init = function(UIcallback){
+                // getFictionInfo(function(){
+                //     getCurChapterContent(chapter_id,function(data){
+                //         UIcallback && UIcallback(data);
+                //     });
+                // })
+                getFictionInfoPromise().then(function(data){
+                    return getCurChapterContentPromise(chapter_id);
+                }).then(function(data){
+                    UIcallback && UIcallback(data);
+                })
+
+            }
+            // var getFictionInfo = function(callback){
+            //     $.get("mock/reader/chapter.json",function (data) { 
+            //         if(data.result == 0){
+            //             chapter_num = data.chapters.length;
+            //             chapter_id = Util.storageGetter("chapter_id");
+            //             if(chapter_id == null){
+            //                 chapter_id = data.chapters[1].chapter_id;
+            //             }
+            //             callback && callback(chapter_id);
+            //         }
+            //     },"json");
+            // }
+
+            var getFictionInfoPromise = function(){
+                return new Promise(function(resolve,reject){
+                    $.get("mock/reader/chapter.json",function (data) { 
+                        if(data.result == 0){
+                            chapter_num = data.chapters.length;
+                            chapter_id = Util.storageGetter("chapter_id");
+                            if(chapter_id == null){
+                                chapter_id = data.chapters[1].chapter_id;
+                            }
+                            resolve();
+                        }else{
+                            reject({mes:"fail"});
+                        }
+                    },"json");
+                });
+            }
+           
+
+            // var getCurChapterContent = function(chapter_id,callback){
+            //     $.get("mock/reader/data/data"+chapter_id+".json",function(data){
+            //         if(data.result == 0){
+            //             var url = data.jsonp;
+            //             Util.getJSONP(url,function(data){
+            //                 callback && callback(data);
+            //             })
+
+            //         }
+            //     },"json");
+            // }
+
+            var getCurChapterContentPromise = function(chapter_id){
+                return new Promise(function(resolve,reject){
+                    $.get("mock/reader/data/data"+chapter_id+".json",function(data){
+                        if(data.result == 0){
+                            var url = data.jsonp;
+                            Util.getJSONP(url,function(data){
+                               resolve(data);
+                            })
+
+                        }else{
+                            reject({mes:"fail"});
+                        }
+                    },"json");
+                })
+            }
+
+            var getPrevChapter = function(UIcallback){
+               
+                chapter_id = parseInt(chapter_id,10);
+
+                if(chapter_id == 1){
+                    return;
+                }
+                chapter_id -= 1;
+                // getCurChapterContent(chapter_id,UIcallback);
+                getCurChapterContentPromise(chapter_id).then(function(data){
+                    UIcallback && UIcallback(data);
+                });
+                Util.storageSetter("chapter_id",chapter_id);
+            }
+
+            var getNextChapter = function(UIcallback){
+                chapter_id = parseInt(chapter_id,10);
+                if(chapter_id == chapter_num){
+                    return;
+                }
+                chapter_id += 1;
+                getCurChapterContentPromise(chapter_id).then(function(data){
+                    UIcallback && UIcallback(data);
+                });
+                Util.storageSetter("chapter_id",chapter_id);
+            }
+
+            return{
+                init:init,
+                getPrevChapter:getPrevChapter,
+                getNextChapter:getNextChapter
+            }
         }
 
-        function readerBaseFrame(){
+        function readerBaseFrame(container){
             //渲染基本的UI结构
+            function parseChapterData(JSONData){
+                var jsonObj = JSON.parse(JSONData);
+                var html = "<h4>"+jsonObj.t+"</h4>";
+                for(var i=0;i<jsonObj.p.length;i++){
+                    html += "<p>"+jsonObj.p[i]+"</p>";
+                }
+                return html;
+            }
+
+            return function(data){
+                container.html(parseChapterData(data));
+            }
+   
         }
 
         function eventHandler(){
@@ -432,26 +564,37 @@
                     default:
                         break;
                 }
+                Util.storageSetter("light_bg_color","");
+                var domDgColor =  DOM.root.css("background");
+                chooseBgColor(domDgColor);
             })
 
             $("#js_light_btn").click(function(){
                 if($(this).hasClass("current")){
                     DOM.root.css("background","#0e1410");
                     Util.storageSetter("light_bg_color","#0e1410");
-                    // DOM.root.css("color","#fff");
                 }else{
                     var currentBgColor = Util.storageGetter("bg_color");
                     DOM.root.css("background",currentBgColor);
                     Util.storageSetter("light_bg_color","");
                 }
                 var domDgColor =  DOM.root.css("background");
-                
                 chooseBgColor(domDgColor);
             })
 
-            
+            // 上一章翻页
+            $("#prev_btn").click(function(){
+               renderModelData.getPrevChapter(function(data){
+                    renderUI(data);
+               })
+            })
 
-
+            // 下一章翻页
+            $("#next_btn").click(function(){
+                renderModelData.getNextChapter(function(data){
+                    renderUI(data);
+               })
+            })
         }
 
         main();
