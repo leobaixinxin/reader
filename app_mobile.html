@@ -20,6 +20,7 @@
             overflow: hidden;
             background: #e9dfc7;
         }
+        
         .m_read_content{
             padding: 15px;
             font-size: 14px;
@@ -37,7 +38,7 @@
             text-indent: 2em;
             margin:0.5em 0;
             letter-spacing: 0;
-            line-height: 24px;
+            line-height: 1.8em;
         }
         .u_tab{
             height:34px;
@@ -163,6 +164,15 @@
         .bk_container:nth-last-child(1){
             margin-right:0;
         }
+        .bk_container.green{
+            background: #7fffd4;
+        }
+        .bk_container.gray{
+            background: #f0f8ff;
+        }
+        .bk_container.blue{
+            background: #6495ed;
+        }    
         .bk_container_current{
             position: absolute;
             top:-2px;
@@ -171,26 +181,41 @@
             height:32px;
             border-radius:50%;
             border:1px solid #ff7800;
+            display: none;
+        }
+        .bk_container.current .bk_container_current{
+            display: block;
+        }
+        .artical_action_mid{
+            position: fixed;
+            z-index:10002;
+            width:100%;
+            height:40%;
+            top:30%;
+            /* background: #ff7800; */
+        }
+        .nav_item.current .iconfont{
+            color:#ff7800;
         }
     </style>
 </head>
 <body>
 
     <div id="root" class="container">
-        <div id="top_nav" class="top_nav">
+        <div id="top_nav" class="top_nav" style="display:none;">
             <div class="icon_back iconfont icon-left"></div>
             <div class="nav_title">返回书架</div>
         </div>
-        <div id="bottom_nav" class="bottom_nav">
-            <div class="nav_item">
+        <div id="bottom_nav" class="bottom_nav" style="display:none;">
+            <div class="nav_item" id="js_list_btn">
                 <div class="icon_list iconfont icon-unorderedlist"></div>
                 <div class="item_name">目录</div>
             </div>
-            <div class="nav_item">
+            <div class="nav_item" id="js_font_btn">
                     <div class="icon_font iconfont icon-font-size"></div>
                     <div class="item_name">字体</div>
             </div>
-            <div class="nav_item">
+            <div class="nav_item" id="js_light_btn">
                     <div class="icon_light iconfont icon-eye-fill"></div>
                     <div class="item_name">夜间</div>
             </div>
@@ -209,8 +234,8 @@
                 <li id="next_btn">下一篇</li>
             </ul>
         </div>
-        <div class="nav_panel_bk"></div>
-        <div class="nav_panel" class="font_container">
+        <div class="nav_panel_bk js_font_panel" style="display:none;"></div>
+        <div class="nav_panel  js_font_panel" style="display:none;">
             <div class="child_mod">
                 <span>字号</span>
                 <button id="large_font" class="font_size_button">大</button>
@@ -222,12 +247,16 @@
                     <div class="bk_container_current"></div>
                 </div> 
                 <div class="bk_container gray">
-                        <div class="bk_container_current"></div>
+                    <div class="bk_container_current"></div>
                 </div> 
                 <div class="bk_container blue">
                     <div class="bk_container_current"></div>
                 </div> 
             </div>
+        </div>
+
+        <div class="m_artical_action">
+            <div class="artical_action_mid" id="action_mid"></div> 
         </div>
     </div>
     
@@ -238,5 +267,197 @@
 </script>
 <script src="js/jquery.base64.js"></script>
 <script src="js/jquery.jsonp.js"></script>
+<script>
+    (function(){
+        var Util = (function(){
+            var prefix = "bxx_reader_";
+            var storageGetter = function(key){
+                return localStorage.getItem(prefix+key);
+            };
+            var storageSetter = function(key,value){
+                return localStorage.setItem(prefix+key,value);
+            };
+
+            var rgb2hex = function(color){
+                var rgb = color.split(',');
+                var r = parseInt(rgb[0].split('(')[1]);
+                var g = parseInt(rgb[1]);
+                var b = parseInt(rgb[2].split(')')[0]);
+            
+                var hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                return hex;
+            }
+
+            return {
+                storageGetter:storageGetter,
+                storageSetter:storageSetter,
+                rgb2hex:rgb2hex
+            }
+        })();
+
+        var DOM = {
+            topNav:$("#top_nav"),
+            bottomNav:$("#bottom_nav"),
+            fontPanel:$(".js_font_panel"),
+            contentContainer:$(".m_read_content"),
+            root:$("#root"),
+            bkContainer:$(".bk_container")
+        }
+
+        var Win = $(window),
+            Doc = $(document);
+
+        // 字体大小初始化
+        var initFontSize =parseInt(Util.storageGetter("font_size")) || 14;
+        DOM.contentContainer.css("font-size",initFontSize);
+
+        //背景颜色初始化
+        var chooseBgColor = Util.storageGetter("bg_color") || "#e9dfc7";
+        var lightBgColor = Util.storageGetter("light_bg_color") || "";
+        
+        if(lightBgColor !== ""){
+            DOM.root.css("background",lightBgColor);
+            $("#js_light_btn").addClass("current");
+        }else{
+            $("#js_light_btn").removeClass("current");
+            DOM.root.css("background",chooseBgColor);
+        }
+        var bgColor = DOM.root.css("background");
+        var chooseBgColor = function(BgColor){
+            $.each(DOM.bkContainer, function (i, el) { 
+                var bkColorChoose = $(el).css("background-color");
+                if(bkColorChoose == BgColor){
+                    $(el).addClass("current");
+                }else{
+                    $(el).removeClass("current"); 
+                }
+            });   
+            
+        }
+
+        chooseBgColor(bgColor);
+
+
+        
+
+
+        function main(){
+            // 页面入口函数
+            eventHandler();
+        }
+
+        function renderModel(){
+            // 实现阅读器数据交互的方法
+        }
+
+        function readerBaseFrame(){
+            //渲染基本的UI结构
+        }
+
+        function eventHandler(){
+            // 交互事件的绑定
+            $("#action_mid").click(function () {
+                if(DOM.topNav.css("display") =="none"){
+                    DOM.topNav.show();
+                    DOM.bottomNav.show();
+                }else{
+                    DOM.topNav.hide();
+                    DOM.bottomNav.hide();
+                    DOM.fontPanel.hide();
+                    $("#js_font_btn").removeClass("current");
+                }
+            })
+
+            Win.scroll(function () { 
+                DOM.topNav.hide();
+                DOM.bottomNav.hide();
+                DOM.fontPanel.hide();
+                $("#js_font_btn").removeClass("current");
+            })
+
+            $("#js_font_btn").click(function () { 
+               if(DOM.fontPanel.css("display") == "none"){
+                  DOM.fontPanel.show();
+               }else{
+                  DOM.fontPanel.hide();
+               }
+            });
+
+            $(".bottom_nav .nav_item").click(function () { 
+                // $(this).siblings(".nav_item").removeClass("current");        
+                if($(this).hasClass("current")){
+                    $(this).removeClass("current");
+                }else{
+                    $(this).addClass("current");
+                }
+            })
+
+            $("#large_font").click(function () { 
+                if(initFontSize > 20){
+                    return;
+                }
+                initFontSize+=1;
+                DOM.contentContainer.css("font-size",initFontSize);
+                Util.storageSetter("font_size",initFontSize);
+
+            })
+
+            $("#small_font").click(function () { 
+                if(initFontSize < 12){
+                    return;
+                }
+                initFontSize-=1;
+                DOM.contentContainer.css("font-size",initFontSize);
+                Util.storageSetter("font_size",initFontSize);
+            })
+
+
+            $(".bk_container").click(function () {
+                var colorClass =  $(this).prop("class").split(" ")[1];
+                $("#js_light_btn").removeClass("current");
+                $(this).addClass("current").siblings().removeClass("current");
+                switch (colorClass) {
+                    case "green":
+                        DOM.root.css("background","#7fffd4");
+                        Util.storageSetter("bg_color","#7fffd4");
+                        break;
+                    case "gray":
+                        DOM.root.css("background","#f0f8ff");
+                        Util.storageSetter("bg_color","#f0f8ff");
+                        break;
+                    case "blue":
+                        DOM.root.css("background","#6495ed");
+                        Util.storageSetter("bg_color","#6495ed");
+                        break;
+                    default:
+                        break;
+                }
+            })
+
+            $("#js_light_btn").click(function(){
+                if($(this).hasClass("current")){
+                    DOM.root.css("background","#0e1410");
+                    Util.storageSetter("light_bg_color","#0e1410");
+                    // DOM.root.css("color","#fff");
+                }else{
+                    var currentBgColor = Util.storageGetter("bg_color");
+                    DOM.root.css("background",currentBgColor);
+                    Util.storageSetter("light_bg_color","");
+                }
+                var domDgColor =  DOM.root.css("background");
+                
+                chooseBgColor(domDgColor);
+            })
+
+            
+
+
+        }
+
+        main();
+
+    })();
+
+</script>
 </body>
 </html>
