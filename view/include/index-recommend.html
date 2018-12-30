@@ -1,0 +1,39 @@
+
+<section class="channel_h5">
+    <div class="channel_h5_header">
+        <p class="channel_h5_title">
+            重磅推荐<i>推</i>
+        </p>
+        <div class="tab">
+            <a href="javascript:" class="tab_on">男</a><a href="javascript:">女</a>
+        </div>
+    </div>
+    <ul class="list_h5">
+        <li v-for="(item,index) in recommend" v-if="index == 0">
+            <div class="book_h5">
+                <div class="book_h5_cover">
+                    <img alt="{{item.title}}" :src="item.cover">
+                    <p class="book_h5_finish">完结</p>
+                </div>
+                <div class="book_h5_info">
+                    <p class="book_h5_title">{{item.title}}</p>
+                    <p class="book_h5_author">{{item.authors}}</p>
+                    <p class="book_h5_summary">{{item.summary}}</p>
+                    <div class="book_h5_wrap">
+                        <div class="book_h5_tag" v-for="tag in item.tags">{{tag}}</div>
+                    </div>
+                </div>
+              
+            </div>
+        </li>
+        <li  v-for="(item,index) in recommend" v-if="index>0 && index<9">
+            <div class="book_h5_noimg">
+                <span class="book_h5_noimg_order">0{{index}}</span>
+                <div class="book_h5_noimg_info">
+                    <div class="book_h5_noimg_title">{{item.title}}</div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+</section>
