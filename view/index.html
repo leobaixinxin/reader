@@ -9,9 +9,10 @@
     <title>书城首页</title>
 </head>
 <body>
-    <div id="root">
-        <div class="container_wrap" id="app">
-                <% include include/header.html %>
+    <div  id="app" :style="{width:screenWidth+'px',overflow: 'hidden'}">
+        <% include include/header.html %>
+        <div :style="{width:doubleScreenWidth+'px',transitionDuration: duration+'s',transform:'translate3d('+position+'px,0,0)'}">
+            <div class="container_wrap"  :style="{width:screenWidth+'px',float: 'left'}">
                 <div class="container_scroll">
                     <% include include/index-top.html %>
                     <% include include/index-free.html %>
@@ -21,6 +22,10 @@
                     <% include include/index-hot.html %>
                     <% include include/index-recommend.html %>
                 </div>
+            </div>
+            <div class="container_shelf" :style="{width:screenWidth+'px',float: 'left'}">
+                <% include include/index-shelf.html %>
+            </div>
         </div>
     </div>
 

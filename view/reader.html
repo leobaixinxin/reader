@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="format-detection" content="telephone=no">
+    <title>reader</title>
+    <link rel="stylesheet" href="/static/css/reset.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_978995_lh8susoq8g.css">
+    <style>
+        html{
+            width:100%;
+            height:100%;
+            overflow-x: hidden;
+        }
+        body{
+            text-align: left;
+            width:100%;
+            overflow: hidden;
+            background: #e9dfc7;
+        }
+        
+        .m_read_content{
+            padding: 15px;
+            font-size: 14px;
+            line-height: 31px;
+            color: #555;
+        }
+        .m_read_content h4{
+            font-size: 20px;
+            color: #736357;
+            border-bottom: 1px solid #736357;
+            letter-spacing: 2px;
+            margin:0 0 1em 0;
+        }
+        .m_read_content p{
+            text-indent: 2em;
+            margin:0.5em 0;
+            letter-spacing: 0;
+            line-height: 1.8em;
+        }
+        .u_tab{
+            height:34px;
+            margin:10px auto;
+            line-height: 34px;
+            border-radius:8px;
+            border:1px solid #858382;
+            font-size: 12px;
+            background: #000;
+            opacity: 0.9;
+        }
+        .u_tab li{
+            display:inline-block;
+            color: #fff;
+            text-align: center;
+            width:49%;
+            border-right:1px solid #fff;
+        }
+        .u_tab li:nth-child(2){
+            border-right: none;
+        }
+        .m_button_bar{
+            width:70%;
+            max-width: 800px;
+            margin:0 auto;
+            padding:15px;
+        }
+        .top_nav{
+            position:fixed;
+            z-index:9999;
+            top:0;
+            width:100%;
+            height:50px;
+            background: #000;
+
+        }
+        .icon_back{
+            position: absolute;
+            top:14px;
+            left:10px;
+        }
+        .icon-left:before{
+            color:#fff;
+            font-size: 23px;
+        }
+        .nav_title{
+            position: absolute;
+            top:16px;
+            left:42px;
+            color:#fff;
+        }
+
+        .bottom_nav{
+            position: fixed;
+            bottom: 0;
+            width:100%;
+            background:#000;
+            z-index: 9999;
+            height:70px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            color:#fff;
+            /* font-size:13px; */
+        }
+        .nav_item{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav_item .iconfont{
+            margin-bottom:2px;
+        }
+
+        .nav_panel_bk{
+            position: fixed;
+            bottom:70px;
+            width:100%;
+            height:135px;
+            z-index:10000;
+            background: #000;
+            opacity:0.9;
+        }
+        .nav_panel{
+            position: fixed;
+            bottom:70px;
+            width:100%;
+            height:135px;
+            z-index:10001;
+            background:none;
+            color:#fff;
+        }
+        .child_mod{
+            display: flex;
+            align-items: center;
+            margin:15px;
+            padding:5px 10px;
+        }
+        .child_mod span{
+            display: inline-block;
+            padding-right:20px;
+            padding-left:10px;
+        }
+        .font_size_button{
+            background: none;
+            color:#fff;
+            border:1px solid #fff;
+            border-radius:16px;
+            padding:5px 40px;
+        }
+        .child_mod button:nth-child(3){
+            margin-left:10px;
+        }
+        .bk_container{
+            position: relative;
+            width:30px;
+            height: 30px;
+            border-radius: 50%;
+            background:#fff;
+            display: inline-block;
+            margin-right:15px;
+        }
+        .bk_container:nth-last-child(1){
+            margin-right:0;
+        }
+        .bk_container.green{
+            background: #7fffd4;
+        }
+        .bk_container.gray{
+            background: #f0f8ff;
+        }
+        .bk_container.blue{
+            background: #6495ed;
+        }    
+        .bk_container_current{
+            position: absolute;
+            top:-2px;
+            left:-2px;
+            width:32px;
+            height:32px;
+            border-radius:50%;
+            border:1px solid #ff7800;
+            display: none;
+        }
+        .bk_container.current .bk_container_current{
+            display: block;
+        }
+        .artical_action_mid{
+            position: fixed;
+            z-index:10002;
+            width:100%;
+            height:40%;
+            top:30%;
+            /* background: #ff7800; */
+        }
+        .nav_item.current .iconfont{
+            color:#ff7800;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root" class="container">
+        <div id="top_nav" class="top_nav" style="display:none;">
+            <div class="icon_back iconfont icon-left"></div>
+            <div class="nav_title">返回书架</div>
+        </div>
+        <div id="bottom_nav" class="bottom_nav" style="display:none;">
+            <div class="nav_item" id="js_list_btn">
+                <div class="icon_list iconfont icon-unorderedlist"></div>
+                <div class="item_name">目录</div>
+            </div>
+            <div class="nav_item" id="js_font_btn">
+                    <div class="icon_font iconfont icon-font-size"></div>
+                    <div class="item_name">字体</div>
+            </div>
+            <div class="nav_item" id="js_light_btn">
+                    <div class="icon_light iconfont icon-eye-fill"></div>
+                    <div class="item_name">夜间</div>
+            </div>
+        </div>
+        <div id="fiction_chapter_title"></div>
+        <div id="fiction_chapter_container" class="m_read_content"></div>
+           
+        <div class="m_button_bar">
+            <ul class="u_tab">
+                <li id="prev_btn">上一篇</li>
+                <li id="next_btn">下一篇</li>
+            </ul>
+        </div>
+        <div class="nav_panel_bk js_font_panel" style="display:none;"></div>
+        <div class="nav_panel  js_font_panel" style="display:none;">
+            <div class="child_mod">
+                <span>字号</span>
+                <button id="large_font" class="font_size_button">大</button>
+                <button id="small_font" class="font_size_button">小</button>
+            </div>
+            <div class="child_mod">
+                <span>背景</span>
+                <div class="bk_container green">
+                    <div class="bk_container_current"></div>
+                </div> 
+                <div class="bk_container gray">
+                    <div class="bk_container_current"></div>
+                </div> 
+                <div class="bk_container blue">
+                    <div class="bk_container_current"></div>
+                </div> 
+            </div>
+        </div>
+
+        <div class="m_artical_action">
+            <div class="artical_action_mid" id="action_mid"></div> 
+        </div>
+    </div>
+    
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+
+<script>
+   window.jQuery = $;
+</script>
+<script src="/static/script/jquery.base64.js"></script>
+<script src="/static/script/jquery.jsonp.js"></script>
+<script>
+    (function(){
+        'use strict';
+        var Util = (function(){
+            var prefix = "bxx_reader_";
+            var storageGetter = function(key){
+                return localStorage.getItem(prefix+key);
+            };
+            var storageSetter = function(key,value){
+                return localStorage.setItem(prefix+key,value);
+            };
+
+            var rgb2hex = function(color){
+                var rgb = color.split(',');
+                var r = parseInt(rgb[0].split('(')[1]);
+                var g = parseInt(rgb[1]);
+                var b = parseInt(rgb[2].split(')')[0]);
+            
+                var hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                return hex;
+            }
+            var getJSONP = function(url,callback){
+                return $.jsonp({
+                    url:url,
+                    cache:true,
+                    callback:"duokan_fiction_chapter",
+                    success:function(result){
+                        var data = $.base64.decode(result);
+                        var json = decodeURIComponent(escape(data));
+                        callback(json);
+                    }
+                })
+            }
+            return {
+                storageGetter:storageGetter,
+                storageSetter:storageSetter,
+                rgb2hex:rgb2hex,
+                getJSONP:getJSONP
+            }
+        })();
+
+        var DOM = {
+            topNav:$("#top_nav"),
+            bottomNav:$("#bottom_nav"),
+            fontPanel:$(".js_font_panel"),
+            contentContainer:$(".m_read_content"),
+            root:$("#root"),
+            bkContainer:$(".bk_container")
+        }
+
+        var Win = $(window),
+            Doc = $(document);
+
+        var renderModelData;
+        var renderUI;
+
+        // 字体大小初始化
+        var initFontSize =parseInt(Util.storageGetter("font_size")) || 14;
+        DOM.contentContainer.css("font-size",initFontSize);
+
+        //背景颜色初始化
+        var chooseBgColor = Util.storageGetter("bg_color") || "#e9dfc7";
+        var lightBgColor = Util.storageGetter("light_bg_color") || "";
+        
+        if(lightBgColor !== ""){
+            DOM.root.css("background",lightBgColor);
+            $("#js_light_btn").addClass("current");
+        }else{
+            $("#js_light_btn").removeClass("current");
+            DOM.root.css("background",chooseBgColor);
+        }
+        var bgColor = DOM.root.css("background");
+        var chooseBgColor = function(BgColor){
+            $.each(DOM.bkContainer, function (i, el) { 
+                var bkColorChoose = $(el).css("background-color");
+                if(bkColorChoose == BgColor){
+                    $(el).addClass("current");
+                }else{
+                    $(el).removeClass("current"); 
+                }
+            });   
+            
+        }
+
+        chooseBgColor(bgColor);
+
+
+        function main(){
+            // 页面入口函数
+            renderModelData = renderModel();
+            renderUI = readerBaseFrame(DOM.contentContainer);
+            renderModelData.init(function(data){
+                renderUI(data);
+            });
+            eventHandler();
+        }
+
+        function renderModel(){
+            // 实现阅读器数据交互的方法
+            var chapter_id;
+            var chapter_num;
+            var init = function(UIcallback){
+                // getFictionInfo(function(){
+                //     getCurChapterContent(chapter_id,function(data){
+                //         UIcallback && UIcallback(data);
+                //     });
+                // })
+                getFictionInfoPromise().then(function(data){
+                    return getCurChapterContentPromise(chapter_id);
+                }).then(function(data){
+                    UIcallback && UIcallback(data);
+                })
+
+            }
+            // var getFictionInfo = function(callback){
+            //     $.get("mock/reader/chapter.json",function (data) { 
+            //         if(data.result == 0){
+            //             chapter_num = data.chapters.length;
+            //             chapter_id = Util.storageGetter("chapter_id");
+            //             if(chapter_id == null){
+            //                 chapter_id = data.chapters[1].chapter_id;
+            //             }
+            //             callback && callback(chapter_id);
+            //         }
+            //     },"json");
+            // }
+
+            var getFictionInfoPromise = function(){
+                return new Promise(function(resolve,reject){
+                    $.get("/ajax/chapter",function (data) { 
+                        if(data.result == 0){
+                            chapter_num = data.chapters.length;
+                            chapter_id = Util.storageGetter("chapter_id");
+                            if(chapter_id == null){
+                                chapter_id = data.chapters[1].chapter_id;
+                            }
+                            resolve();
+                        }else{
+                            reject({mes:"fail"});
+                        }
+                    },"json");
+                });
+            }
+           
+
+            // var getCurChapterContent = function(chapter_id,callback){
+            //     $.get("mock/reader/data/data"+chapter_id+".json",function(data){
+            //         if(data.result == 0){
+            //             var url = data.jsonp;
+            //             Util.getJSONP(url,function(data){
+            //                 callback && callback(data);
+            //             })
+
+            //         }
+            //     },"json");
+            // }
+
+            var getCurChapterContentPromise = function(chapter_id){
+                return new Promise(function(resolve,reject){
+                    $.get("/ajax/chapter/data",{
+                        id:chapter_id
+                    },function(data){
+                        if(data.result == 0){
+                            var url = data.jsonp;
+                            Util.getJSONP(url,function(data){
+                               resolve(data);
+                            })
+
+                        }else{
+                            reject({mes:"fail"});
+                        }
+                    },"json");
+                })
+            }
+
+            var getPrevChapter = function(UIcallback){
+               
+                chapter_id = parseInt(chapter_id,10);
+
+                if(chapter_id == 1){
+                    return;
+                }
+                chapter_id -= 1;
+                // getCurChapterContent(chapter_id,UIcallback);
+                getCurChapterContentPromise(chapter_id).then(function(data){
+                    UIcallback && UIcallback(data);
+                });
+                Util.storageSetter("chapter_id",chapter_id);
+            }
+
+            var getNextChapter = function(UIcallback){
+                chapter_id = parseInt(chapter_id,10);
+                if(chapter_id == chapter_num){
+                    return;
+                }
+                chapter_id += 1;
+                getCurChapterContentPromise(chapter_id).then(function(data){
+                    UIcallback && UIcallback(data);
+                });
+                Util.storageSetter("chapter_id",chapter_id);
+            }
+
+            return{
+                init:init,
+                getPrevChapter:getPrevChapter,
+                getNextChapter:getNextChapter
+            }
+        }
+
+        function readerBaseFrame(container){
+            //渲染基本的UI结构
+            function parseChapterData(JSONData){
+                var jsonObj = JSON.parse(JSONData);
+                var html = "<h4>"+jsonObj.t+"</h4>";
+                for(var i=0;i<jsonObj.p.length;i++){
+                    html += "<p>"+jsonObj.p[i]+"</p>";
+                }
+                return html;
+            }
+
+            return function(data){
+                container.html(parseChapterData(data));
+            }
+   
+        }
+
+        function eventHandler(){
+            // 交互事件的绑定
+            $("#action_mid").click(function () {
+                if(DOM.topNav.css("display") =="none"){
+                    DOM.topNav.show();
+                    DOM.bottomNav.show();
+                }else{
+                    DOM.topNav.hide();
+                    DOM.bottomNav.hide();
+                    DOM.fontPanel.hide();
+                    $("#js_font_btn").removeClass("current");
+                }
+            })
+
+            Win.scroll(function () { 
+                DOM.topNav.hide();
+                DOM.bottomNav.hide();
+                DOM.fontPanel.hide();
+                $("#js_font_btn").removeClass("current");
+            })
+
+            $("#js_font_btn").click(function () { 
+               if(DOM.fontPanel.css("display") == "none"){
+                  DOM.fontPanel.show();
+               }else{
+                  DOM.fontPanel.hide();
+               }
+            });
+
+            $(".bottom_nav .nav_item").click(function () { 
+                // $(this).siblings(".nav_item").removeClass("current");        
+                if($(this).hasClass("current")){
+                    $(this).removeClass("current");
+                }else{
+                    $(this).addClass("current");
+                }
+            })
+
+            $("#large_font").click(function () { 
+                if(initFontSize > 20){
+                    return;
+                }
+                initFontSize+=1;
+                DOM.contentContainer.css("font-size",initFontSize);
+                Util.storageSetter("font_size",initFontSize);
+
+            })
+
+            $("#small_font").click(function () { 
+                if(initFontSize < 12){
+                    return;
+                }
+                initFontSize-=1;
+                DOM.contentContainer.css("font-size",initFontSize);
+                Util.storageSetter("font_size",initFontSize);
+            })
+
+
+            $(".bk_container").click(function () {
+                var colorClass =  $(this).prop("class").split(" ")[1];
+                $("#js_light_btn").removeClass("current");
+                $(this).addClass("current").siblings().removeClass("current");
+                switch (colorClass) {
+                    case "green":
+                        DOM.root.css("background","#7fffd4");
+                        Util.storageSetter("bg_color","#7fffd4");
+                        break;
+                    case "gray":
+                        DOM.root.css("background","#f0f8ff");
+                        Util.storageSetter("bg_color","#f0f8ff");
+                        break;
+                    case "blue":
+                        DOM.root.css("background","#6495ed");
+                        Util.storageSetter("bg_color","#6495ed");
+                        break;
+                    default:
+                        break;
+                }
+                Util.storageSetter("light_bg_color","");
+                var domDgColor =  DOM.root.css("background");
+                chooseBgColor(domDgColor);
+            })
+
+            $("#js_light_btn").click(function(){
+                if($(this).hasClass("current")){
+                    DOM.root.css("background","#0e1410");
+                    Util.storageSetter("light_bg_color","#0e1410");
+                }else{
+                    var currentBgColor = Util.storageGetter("bg_color");
+                    DOM.root.css("background",currentBgColor);
+                    Util.storageSetter("light_bg_color","");
+                }
+                var domDgColor =  DOM.root.css("background");
+                chooseBgColor(domDgColor);
+            })
+
+            // 上一章翻页
+            $("#prev_btn").click(function(){
+               renderModelData.getPrevChapter(function(data){
+                    renderUI(data);
+               })
+            })
+
+            // 下一章翻页
+            $("#next_btn").click(function(){
+                renderModelData.getNextChapter(function(data){
+                    renderUI(data);
+               })
+            })
+        }
+
+        main();
+
+    })();
+
+</script>
+</body>
+</html>

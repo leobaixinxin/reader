@@ -1,1 +1,81 @@
-book id === <%= bookId%>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="/static/css/reset.css">
+    <link rel="stylesheet" href="/static/css/all.css">
+    <title>书籍详情</title>
+</head>
+<body>
+    <div  id="app" :style="{width:screenWidth+'px',overflow: 'hidden'}">
+        <% include include/common-header.html %>
+        <div class="container_wrap">
+            <div class="container_scroll" :style="{width:screenWidth+'px'}">
+                <div class="book_page">
+                    <section class="main_card">
+                        <div class="u_book _detail">
+                            <div class="book_cover">
+                                <img src="http://cover.read.duokan.com/mfsv2/download/s010/p01yfPOuJRok/dQJSYfAnD3AB42.jpg!s" alt="">
+                            </div>
+                            <div class="info">
+                                    <h3 class="title">老九门</h3>
+                                    <p class="author">
+                                        <span class="author">南派三叔</span>
+                                    </p>
+                                    <div class="u_grade">
+                                        <span class="read">12 个评价</span>
+                                    </div>
+                                    <p class="price">价格：1书币／千字</p>
+                                    <p class="count">
+                                        字数:70999字
+                                        <span class="u_booktag _serial">连载中</span>
+                                    </p>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="main_card">
+                        <div class="book_dash">
+                            <div class="wrap">
+                                <ul class="btn_group">
+                                    <li class="u_btn2" onclick="location.href='/reader'">
+                                        <span class="book_dash_text"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="u_folder">
+                            <div class="folder_cnt">
+                                最佳答案: 首先在电脑上安装好最新版iTools,然后把我们的iOS设备连接到iTools。然后在左边窗格中点击我们的设备,再点击右边的“Airplay”,首次使用软件需要先下载
+                            </div>
+                            <div class="folder_tail">
+                                <div>最新：暂无</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="main_card">
+                        <div class="u_folder">
+                            <div class="folder_top">
+                                类别标签
+                            </div>
+                            <div class="folder_cnt">
+                                <ul class="m_tag _color">
+                                    <li class="u_tag">寻母探险</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </div>  
+
+    </div>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+<script src="/static/script/pages/book.js"></script>
+</html>

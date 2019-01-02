@@ -37,6 +37,15 @@ app.use(controller.get("/search",function*(){
     this.set("Cache-Control","no-cache");
     this.body = yield render("search");
 }));
+app.use(controller.get("/reader",function*(){
+    this.set("Cache-Control","no-cache");
+    this.body = yield render("reader");
+}));
+
+app.use(controller.get("/male",function*(){
+    this.set("Cache-Control","no-cache");
+    this.body = yield render("male",{nav:"男生频道"});
+}));
 
 app.use(controller.get("/book",function*(){
     this.set("Cache-Control","no-cache");
@@ -45,7 +54,7 @@ app.use(controller.get("/book",function*(){
     if(!bookId){
         bookId = "";
     }
-    this.body = yield render("book",{bookId:bookId});
+    this.body = yield render("book",{nav:"书籍详情",bookId:bookId});
 }));
 
 app.use(controller.get("/api_test",function*(){
@@ -70,6 +79,16 @@ app.use(controller.get("/ajax/index",function*(){
     this.body = service.get_index_data();
 }));
 
+app.use(controller.get("/ajax/chapter",function*(){
+    this.set("Cache-Control","no-cache");
+    this.body = service.get_chapter_data();
+}));
+
+app.use(controller.get('/ajax/male', function*(){
+	this.set('Cache-Control', 'no-cache');
+	this.body = service.get_male_data();
+}));
+
 app.use(controller.get("/ajax/book",function*(){
     this.set("Cache-Control","no-cache");
     var params = qs.parse(this.req._parsedUrl.query);
@@ -81,7 +100,15 @@ app.use(controller.get("/ajax/book",function*(){
 
     this.body = service.get_book_data(id);
 }));
-
+app.use(controller.get("/ajax/chapter/data",function*(){
+    this.set("Cache-Control","no-cache");
+    var params = qs.parse(this.req._parsedUrl.query);
+    var id = params.id;
+    if(!id){
+        id="";
+    }
+    this.body = service.get_chapter_content_data(id);
+}));
 
 app.listen(3003);
 
